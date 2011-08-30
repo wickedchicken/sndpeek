@@ -43,8 +43,9 @@
 #define __RTAUDIO_H
 
 #include "RtError.h"
-#include <string>
+#include <cstring>
 #include <vector>
+#include <cstdio>
 using namespace std;
 
 // Operating system dependent thread functionality.

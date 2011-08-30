@@ -35,7 +35,7 @@ in Speech Recognition research.
 #include "MagFFT.h"
 #include "fvec.h"
 #include "fmatrix.h"
-#include <math.h>
+#include <cmath>
 #include "AutoCorrelation.h"
 #include "MarSignal.h"
 
