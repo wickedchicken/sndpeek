@@ -214,6 +214,8 @@ Rolloff * g_rolloff2 = NULL;
 // ---
 // print features to stdout
 GLboolean g_stdout = FALSE;
+// Print frequency to stdout only
+GLboolean g_freqonly = FALSE;
 // opengl dislpay
 GLboolean g_display = TRUE;
 // fullscreen
@@ -352,6 +354,9 @@ void usage()
     fprintf( stderr, "example:\n" );
     fprintf( stderr, "    sndpeek --fullscreen:ON --features:OFF --spacing:.05\n" );
     fprintf( stderr, "\n" );
+    fprintf( stderr, "print frequency only example:\n" );
+    fprintf( stderr, "    sndpeek --print --freq-only\n" );
+    fprintf( stderr, "\n" );
     fprintf( stderr, "sndpeek version: 1.3b\n" );
     fprintf( stderr, "    http://sndtools.cs.princeton.edu/\n" );
     fprintf( stderr, "\n" );
@@ -381,6 +386,8 @@ int main( int argc, char ** argv )
                 usage();
                 exit( 0 );
             }
+            else if( !strcmp( argv[i], "--freq-only" ) )
+                g_freqonly = TRUE;
             else if( !strcmp( argv[i], "--sndout" ) )
                 g_sndout = 2;
             else if( !strcmp( argv[i], "--nodisplay" ) )
@@ -1636,10 +1643,14 @@ void displayFunc( )
         // print to console
         if( g_stdout )
         {
-            fprintf( stdout, "%.2f  %.2f  %.8f  %.2f  %.2f  ", centroid(0), flux(0), rms(0), rolloff(0), rolloff2(0) );
-            fprintf( stdout, "%.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f %.2f %.2f  ", 
+	    if (g_freqonly) {
+	        fprintf(stdout, "%.2f", centroid(0));
+	    } else {
+                fprintf( stdout, "%.2f  %.2f  %.8f  %.2f  %.2f  ", centroid(0), flux(0), rms(0), rolloff(0), rolloff2(0) );
+                fprintf( stdout, "%.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f %.2f %.2f  ", 
                      mfcc(0), mfcc(1), mfcc(2), mfcc(3), mfcc(4), mfcc(5), mfcc(6),
                      mfcc(7), mfcc(8), mfcc(9), mfcc(10), mfcc(11), mfcc(12) );
+	    }
             fprintf( stdout, "\n" );
         }
 
