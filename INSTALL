@@ -1,6 +1,9 @@
+## General
 
 > make
 
 follow directions!
 
-Thanks!
+## Ubuntu dependencies
+
+freeglut3-dev libsndfile-dev libxi-dev libxmu-dev libgl-dev
