@@ -216,6 +216,8 @@ Rolloff * g_rolloff2 = NULL;
 GLboolean g_stdout = FALSE;
 // Print frequency to stdout only
 GLboolean g_freqonly = FALSE;
+// Print rolloff to stdout only
+GLboolean g_rolloffonly = FALSE;
 // opengl dislpay
 GLboolean g_display = TRUE;
 // fullscreen
@@ -388,6 +390,8 @@ int main( int argc, char ** argv )
             }
             else if( !strcmp( argv[i], "--freq-only" ) )
                 g_freqonly = TRUE;
+            else if( !strcmp( argv[i], "--rolloff-only" ) )
+                g_rolloffonly = TRUE;
             else if( !strcmp( argv[i], "--sndout" ) )
                 g_sndout = 2;
             else if( !strcmp( argv[i], "--nodisplay" ) )
@@ -1645,7 +1649,9 @@ void displayFunc( )
         {
 	    if (g_freqonly) {
 	        fprintf(stdout, "%.2f", centroid(0));
-	    } else {
+	    } else if (g_rolloffonly) {
+                fprintf(stdout, "%.2f %.2f", rolloff(0), rolloff2(0) );
+            } else {
                 fprintf( stdout, "%.2f  %.2f  %.8f  %.2f  %.2f  ", centroid(0), flux(0), rms(0), rolloff(0), rolloff2(0) );
                 fprintf( stdout, "%.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f %.2f %.2f  ", 
                      mfcc(0), mfcc(1), mfcc(2), mfcc(3), mfcc(4), mfcc(5), mfcc(6),
@@ -1755,13 +1761,19 @@ void extract_buffer( )
 
     // print to console
     if( g_stdout )
-    {
-        fprintf( stdout, "%.2f  %.2f  %.8f  %.2f  %.2f  ", centroid(0), flux(0), rms(0), rolloff(0), rolloff2(0) );
-        fprintf( stdout, "%.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f %.2f %.2f  ", 
-                 mfcc(0), mfcc(1), mfcc(2), mfcc(3), mfcc(4), mfcc(5), mfcc(6),
-                 mfcc(7), mfcc(8), mfcc(9), mfcc(10), mfcc(11), mfcc(12) );
-        fprintf( stdout, "\n" );
-    }
+	{
+	    if (g_freqonly) {
+		fprintf(stdout, "%.2f", centroid(0));
+	    } else if (g_rolloffonly) {
+		fprintf(stdout, "%.2f %.2f", rolloff(0), rolloff2(0) );
+	    } else {
+		fprintf( stdout, "%.2f  %.2f  %.8f  %.2f  %.2f  ", centroid(0), flux(0), rms(0), rolloff(0), rolloff2(0) );
+		fprintf( stdout, "%.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f  %.2f %.2f %.2f  ", 
+		     mfcc(0), mfcc(1), mfcc(2), mfcc(3), mfcc(4), mfcc(5), mfcc(6),
+		     mfcc(7), mfcc(8), mfcc(9), mfcc(10), mfcc(11), mfcc(12) );
+	    }
+	    fprintf( stdout, "\n" );
+	}
 
     // file reading stuff
     g_buffer_count_b++;
