@@ -351,7 +351,7 @@ void usage()
     fprintf( stderr, "  number options: timescale|freqscale|lissscale|logfactor|\n" );
     fprintf( stderr, "                  spacing|zpos|dzpos|depth|preview|yview|\n" );
     fprintf( stderr, "                  rotatem|rotatek|begintime|ds\n" );
-    fprintf( stderr, "   other options: nodisplay|print\n" );
+    fprintf( stderr, "   other options: nodisplay|print|freq-only|rolloff-only\n" );
     fprintf( stderr, "\n" );
     fprintf( stderr, "example:\n" );
     fprintf( stderr, "    sndpeek --fullscreen:ON --features:OFF --spacing:.05\n" );
