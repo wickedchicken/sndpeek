@@ -1658,6 +1658,7 @@ void displayFunc( )
                      mfcc(7), mfcc(8), mfcc(9), mfcc(10), mfcc(11), mfcc(12) );
 	    }
             fprintf( stdout, "\n" );
+            fflush(stdout);
         }
 
         // set color
@@ -1773,6 +1774,7 @@ void extract_buffer( )
 		     mfcc(7), mfcc(8), mfcc(9), mfcc(10), mfcc(11), mfcc(12) );
 	    }
 	    fprintf( stdout, "\n" );
+            fflush(stdout);
 	}
 
     // file reading stuff
