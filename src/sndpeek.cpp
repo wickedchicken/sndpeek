@@ -84,13 +84,13 @@
 #include "chuck_fft.h"
 
 // Marsyas
-#include "Centroid.h"
-#include "DownSampler.h"
-#include "Flux.h"
-#include "LPC.h"
-#include "MFCC.h"
-#include "RMS.h"
-#include "Rolloff.h"
+#include "marsyas/Centroid.h"
+#include "marsyas/DownSampler.h"
+#include "marsyas/Flux.h"
+#include "marsyas/LPC.h"
+#include "marsyas/MFCC.h"
+#include "marsyas/RMS.h"
+#include "marsyas/Rolloff.h"
 
 
 
