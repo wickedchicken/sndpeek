@@ -27,25 +27,33 @@ SET(LIBS ${CMAKE_THREAD_LIBS_INIT} glut GL GLU Xmu X11 Xext Xi m sndfile ${MARSY
 
 SET(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${UTIL_SNDFILE_SOURCES_DIR} ${MARSYAS_SOURCES_DIR})
 
-SET(ALSA TRUE) # HACK Handle this with arguments to CMake and/or defaults depending on the build target
+IF(NOT SOUND_SYSTEM)
+	IF("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		SET(SOUND_SYSTEM "WIN32")
+	ELSEIF("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		SET(SOUND_SYSTEM "OSX")
+	ELSE()
+		SET(SOUND_SYSTEM "ALSA")
+	ENDIF()
+ENDIF()
 
-IF(ALSA)
+IF("${SOUND_SYSTEM}" STREQUAL "ALSA")
 	ADD_DEFINITIONS(-D__LINUX_ALSA__ -D__LITTLE_ENDIAN__)
 	SET(LIBS ${LIBS} -lasound)
-ELSEIF(JACK)
+ELSEIF("${SOUND_SYSTEM}" STREQUAL "JACK")
 	ADD_DEFINITIONS(-D__LINUX_JACK__ -D__LITTLE_ENDIAN__)
 	SET(LIBS ${LIBS} -lasound -ljack)
-ELSEIF(OSS)
+ELSEIF("${SOUND_SYSTEM}" STREQUAL "OSS")
 	add_definitions(-D__LINUX_OSS__ -D__LITTLE_ENDIAN__)
 	SET(LIBS ${LIBS} -lstdc++)
-ELSEIF(OSX)
+ELSEIF("${SOUND_SYSTEM}" STREQUAL "OSX")
 	ADD_DEFINITIONS(-D__MACOSX_CORE__)
 	SET(LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation -framework OpenGL -framework GLUT -framework Foundation -framework AppKit)
 	SET(SOURCES_SNDPEEK
 			${SOURCES_SNDPEEK}
 			${SOURCES_SNDUTIL}
 			)
-ELSEIF(OSX_UB)
+ELSEIF("${SOUND_SYSTEM}" STREQUAL "OSX-UB")
 	ADD_DEFINITIONS(-D__MACOSX_CORE__)
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk")
 	SET(LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation -framework OpenGL -framework GLUT -framework Foundation -framework AppKit -lstdc++ -lm -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk)
@@ -62,7 +70,7 @@ ELSEIF(OSX_UB)
 	#FLAGS+= -D__CK_SNDFILE_NATIVE__
 	#LIBS+= -lsndfile
 	#SF_OBJ=
-ELSEIF(WIN32)
+ELSEIF("${SOUND_SYSTEM}" STREQUAL "WIN32")
 	ADD_SUBDIRECTORY(${UTIL_SNDFILE_SOURCES_DIR})
 	SET(INCLUDE_DIRS ${INCLUDE_DIRS} /usr/include/directx/)
 	ADD_DEFINITIONS(-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ -D__LITTLE_ENDIAN__)
