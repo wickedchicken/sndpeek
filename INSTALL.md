@@ -1,8 +1,11 @@
 ## General
 
-> make
-
-follow directions!
+```bash
+mkdir build
+cd build
+cmake .. -DALSA
+make
+```
 
 ## Ubuntu dependencies
 
