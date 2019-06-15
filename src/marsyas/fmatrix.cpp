@@ -34,7 +34,7 @@ fmatrix::fmatrix(): data_(NULL), size_(0), rows_(0), cols_(0), name_("m"), print
 
 fmatrix::~fmatrix()
 {
-  delete data_;
+  delete[] data_;
 }
 
 fmatrix::fmatrix(unsigned int rows): data_(new double[rows * rows]), size_(rows*rows), rows_(rows), cols_(rows), name_("m"), printHeader_(true)
