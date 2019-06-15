@@ -4,12 +4,12 @@
 
 SET(SOURCES_SNDPEEK_BASE
 		chuck_fft.c
-        RtAudio.cpp
-        sndpeek.cpp
-        Stk.cpp
-        Thread.cpp
-        WvIn.cpp
-        WvOut.cpp
+		RtAudio.cpp
+		sndpeek.cpp
+		Stk.cpp
+		Thread.cpp
+		WvIn.cpp
+		WvOut.cpp
 		)
 SET(SOURCES_SNDPEEK
 		${SOURCES_SNDPEEK_BASE}
@@ -41,18 +41,18 @@ ELSEIF(OSS)
 ELSEIF(OSX)
 	ADD_DEFINITIONS(-D__MACOSX_CORE__)
 	SET(LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation -framework OpenGL -framework GLUT -framework Foundation -framework AppKit)
-    SET(SOURCES_SNDPEEK
-    		${SOURCES_SNDPEEK}
-    		${SOURCES_SNDUTIL}
-            )
+	SET(SOURCES_SNDPEEK
+			${SOURCES_SNDPEEK}
+			${SOURCES_SNDUTIL}
+			)
 ELSEIF(OSX_UB)
 	ADD_DEFINITIONS(-D__MACOSX_CORE__)
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk")
 	SET(LIBS -framework CoreAudio -framework CoreMIDI -framework CoreFoundation -framework OpenGL -framework GLUT -framework Foundation -framework AppKit -lstdc++ -lm -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk)
-    SET(SOURCES_SNDPEEK
-            ${SOURCES_SNDPEEK}
+	SET(SOURCES_SNDPEEK
+			${SOURCES_SNDPEEK}
 			${SOURCES_SNDUTIL}
-            )
+			)
 	#SF_OBJ=util_sndfile.o
 
 	#-----------------------------------------------------------------------------
@@ -67,10 +67,10 @@ ELSEIF(WIN32)
 	SET(INCLUDE_DIRS ${INCLUDE_DIRS} /usr/include/directx/)
 	ADD_DEFINITIONS(-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ -D__LITTLE_ENDIAN__)
 	SET(LIBS dsound dxguid winmm pthread opengl32 glu32 glut32)
-    SET(SOURCES_SNDPEEK
-            ${SOURCES_SNDPEEK}
+	SET(SOURCES_SNDPEEK
+			${SOURCES_SNDPEEK}
 			${SOURCES_SNDUTIL}
-            )
+			)
 ENDIF()
 
 ADD_SUBDIRECTORY(marsyas)
