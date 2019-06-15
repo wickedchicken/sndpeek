@@ -1,12 +1,10 @@
 # sndpeek: a real-time audio visualization tool (animated, 3D)
 
 **soundlab homepage**:
-
-    http://soundlab.cs.princeton.edu/
+<http://soundlab.cs.princeton.edu/>
 
 **sndpeek homepage**:
-
-    http://soundlab.cs.princeton.edu/software/sndpeek/
+<http://soundlab.cs.princeton.edu/software/sndpeek/>
 
 ---
 
