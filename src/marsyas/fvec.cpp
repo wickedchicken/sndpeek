@@ -40,7 +40,7 @@ fvec::fvec()
 
 fvec::~fvec()
 {
-  delete data_;
+  delete[] data_;
 }
 
 fvec::fvec(unsigned int size)

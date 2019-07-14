@@ -185,7 +185,7 @@ void RtAudio::initialize( RtAudioApi api )
     }
     catch (RtError &) {
 #if defined(__RTAUDIO_DEBUG__)
-      fprintf(stderr, "\nRtAudio: no devices found for second api option (Alsa or DirectSound).\n\n");
+      fprintf(stderr, "\nRtAudio: no devices found for second API option (Alsa or DirectSound).\n\n");
 #endif
       rtapi_ = 0;
     }

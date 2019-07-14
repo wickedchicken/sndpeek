@@ -1,0 +1,20 @@
+language: cpp
+
+compiler:
+  - clang
+#  - gcc
+
+before_install:
+  - sudo apt-get install -y cmake libasound2-dev freeglut3-dev libsndfile-dev libxi-dev libxmu-dev libgl1-mesa-dev
+
+matrix:
+  include:
+    - os: linux
+#    - os: osx
+
+script:
+- mkdir build
+- cd build
+- cmake ..
+- make
+
