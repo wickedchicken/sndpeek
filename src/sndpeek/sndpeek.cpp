@@ -4,6 +4,7 @@
     Copyright (c) 2004 Ge Wang, Perry R. Cook, Ananya Misra.
         All rights reserved.
         http://soundlab.cs.princeton.edu/
+        http://www.gewang.com/
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,18 +28,19 @@
 //       by Ge Wang for the memex project and to entertain small children
 //       at parties.
 //
-// authors: Ge Wang (gewang@cs.princeton.edu)
+// authors: Ge Wang (http://www.gewang.com/)
 //          Perry R. Cook (prc@cs.princeton.edu)
 //          Ananya Misra (amisra@cs.princeton.edu)
 // thanks to:
 //          Yilei Shao, Qin Lv, Tom Briggs
 // library:
-//          (STK) Perry R. Cook (prc@cs.princeton.edu)
-//          (STK) Gary P. Scavone (gary@ccrma.stanford.edu)
+//          (RtAudio) Gary P. Scavone (gary@ccrma.stanford.edu)
 //          (FFT) CARL CMusic Distribution
 //          (Marsyas) George Tzanetakis (gtzan@cs.princeton.edu)
+//          (STK) Perry R. Cook (prc@cs.princeton.edu)
 //          (libsndfile) Erik de Castro Lopo
-// date: 11.28.2003 - ...
+// date: 11.28.2003 - initial version
+//       spring 2015 - updated for OSX Yosemite
 //
 // usage: (type 'h' while running or see list of command line arguments)
 //-----------------------------------------------------------------------------
@@ -59,7 +61,7 @@
 #include "Thread.h"
 
 // OpenGL
-#if defined(__OS_MACOSX__)
+#if defined(__APPLE__)
   #include <GLUT/glut.h>
   #include <OpenGL/gl.h>
   #include <OpenGL/glu.h>
@@ -115,7 +117,9 @@ double compute_log_spacing( int fft_size, double factor );
 //-----------------------------------------------------------------------------
 // global variables and #defines
 //-----------------------------------------------------------------------------
-#define SAMPLE                  MY_FLOAT
+#define SAMPLE                  float
+#define RTAUDIO_FORMAT          RTAUDIO_FLOAT32
+#define NUM_CHANNELS            2
 #define SND_BUFFER_SIZE         1024
 #define SND_FFT_SIZE            ( SND_BUFFER_SIZE * 2 )
 #define SND_MARSYAS_SIZE        ( 512 )
@@ -212,6 +216,10 @@ Rolloff * g_rolloff2 = NULL;
 
 // global flags with default...
 // ---
+// audio input device
+long g_audioInputDevice = -1;
+// audio output device
+long g_audioOutputDevice = -1;
 // print features to stdout
 GLboolean g_stdout = FALSE;
 // Print frequency to stdout only
@@ -286,6 +294,8 @@ GLuint g_wf_delay = (GLuint)(g_depth * g_wf_delay_ratio + .5f);
 GLuint g_wf_index = 0;
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: help()
 // desc: ...
@@ -293,9 +303,9 @@ GLuint g_wf_index = 0;
 void help()
 {
     fprintf( stderr, "----------------------------------------------------\n" );
-    fprintf( stderr, "sndpeek + wutrfall (1.3b)\n" );
+    fprintf( stderr, "sndpeek + wutrfall (1.4)\n" );
     fprintf( stderr, "Ge Wang, Perry R. Cook, Ananya Misra\n" );
-    fprintf( stderr, "http://soundlab.cs.princeton.edu/\n" );
+    fprintf( stderr, "http://www.gewang.com/\n" );
     fprintf( stderr, "----------------------------------------------------\n" );
     fprintf( stderr, "'h' - print this help message\n" );
     fprintf( stderr, "'p' - print current settings to console\n" );
@@ -339,28 +349,68 @@ void help()
 
 
 //-----------------------------------------------------------------------------
+// name: probe()
+// desc: probe audio info
+//-----------------------------------------------------------------------------
+void probe()
+{
+    RtAudio audio;
+    
+    // get number of devices
+    unsigned int numDevices = audio.getDeviceCount();
+    
+    cerr << "avalable audio devices: " << numDevices << endl;
+    cerr << "-----------------------" << endl;
+    
+    // iterate
+    for( int i = 0; i < numDevices; i++ )
+    {
+        // get info
+        RtAudio::DeviceInfo info = audio.getDeviceInfo(i);
+        // check
+        if( info.probed )
+        {
+            cerr << i << ": " << info.name
+            << " channels in: " << info.inputChannels
+            << (info.isDefaultInput ? " (default)" : "" )
+            << " out: " << info.outputChannels
+            << (info.isDefaultOutput ? " (default)" : "" )
+            << endl;
+        }
+    }
+    // cerr << "------------------------" << endl;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: usage()
 // desc: ...
 //-----------------------------------------------------------------------------
 void usage()
 {
+    fprintf( stderr, "-----------------------\n" );
     fprintf( stderr, "usage: sndpeek  --[options] [filename]\n" );
     fprintf( stderr, "  ON/OFF options: fullscreen|waveform|lissajous|waterfall|\n" );
     fprintf( stderr, "                  dB|features|fallcolors|backward|showtime|\n" );
     fprintf( stderr, "                  freeze\n" );
-    fprintf( stderr, "  number options: timescale|freqscale|lissscale|logfactor|\n" );
+    fprintf( stderr, "  number options: inputDevice|outputDevice|\n" );
+    fprintf( stderr, "                  timescale|freqscale|lissscale|logfactor|\n" );
     fprintf( stderr, "                  spacing|zpos|dzpos|depth|preview|yview|\n" );
     fprintf( stderr, "                  rotatem|rotatek|begintime|ds\n" );
-    fprintf( stderr, "   other options: nodisplay|print|freq-only|rolloff-only\n" );
+    fprintf( stderr, "   other options: about|nodisplay|print|freq-only|rolloff-only\n" );
     fprintf( stderr, "\n" );
     fprintf( stderr, "example:\n" );
-    fprintf( stderr, "    sndpeek --fullscreen:ON --features:OFF --spacing:.05\n" );
+    fprintf( stderr, "    sndpeek --fullscreen:ON --inputDevice:1 --spacing:.05\n" );
+    fprintf( stderr, "\n" );
+    probe();
     fprintf( stderr, "\n" );
     fprintf( stderr, "print frequency only example:\n" );
     fprintf( stderr, "    sndpeek --print --freq-only\n" );
     fprintf( stderr, "\n" );
-    fprintf( stderr, "sndpeek version: 1.3b\n" );
-    fprintf( stderr, "    http://sndtools.cs.princeton.edu/\n" );
+    fprintf( stderr, "sndpeek version: 1.4\n" );
+    fprintf( stderr, "    http://www.gewang.com/\n" );
     fprintf( stderr, "\n" );
 }
 
@@ -368,8 +418,8 @@ void usage()
 
 
 //-----------------------------------------------------------------------------
-// Name: main( )
-// Desc: entry point
+// name: main( )
+// desc: entry point
 //-----------------------------------------------------------------------------
 int main( int argc, char ** argv )
 {
@@ -392,6 +442,10 @@ int main( int argc, char ** argv )
                 g_freqonly = TRUE;
             else if( !strcmp( argv[i], "--rolloff-only" ) )
                 g_rolloffonly = TRUE;
+            else if( !strncmp( argv[i], "--inputDevice:", 14) )
+                g_audioInputDevice = atoi(argv[i]+14) >= 0 ? atoi(argv[i]+14) : g_audioInputDevice;
+            else if( !strncmp( argv[i], "--outputDevice:", 15) )
+                g_audioOutputDevice = atoi(argv[i]+15) >= 0 ? atoi(argv[i]+15) : g_audioOutputDevice;
             else if( !strcmp( argv[i], "--sndout" ) )
                 g_sndout = 2;
             else if( !strcmp( argv[i], "--nodisplay" ) )
@@ -566,9 +620,14 @@ int main( int argc, char ** argv )
     // intialize real-time audio
     if( !initialize_audio( ) )
     {
-        fprintf( stderr, "[sndpeek]: exiting...\n" );
+        // print usage
+        usage();
+        // done
         return -3;
     }
+
+    // print usage
+    help();
 
     // display mode
     if( g_display )
@@ -610,11 +669,17 @@ int main( int argc, char ** argv )
 // name: cb()
 // desc: audio callback
 //-----------------------------------------------------------------------------
-int cb( char * buffer, int buffer_size, void * user_data )
+//int cb( char * buffer, int buffer_size, void * user_data )
+int cb( void * outputBuffer, void * inputBuffer, unsigned int numFrames,
+        double streamTime, RtAudioStreamStatus status, void * data )
 {
+    // cast to sample buffer
+    SAMPLE * input = (SAMPLE *)inputBuffer;
+    SAMPLE * output = (SAMPLE *)outputBuffer;
+
     // freeze frame
     if( g_freeze ) {
-        memset( buffer, 0, buffer_size * 2 * sizeof(SAMPLE) );
+        memset( output, 0, numFrames * 2 * sizeof(SAMPLE) );
         g_ready = TRUE;
         return 0;
     }
@@ -625,9 +690,9 @@ int cb( char * buffer, int buffer_size, void * user_data )
     if( !g_filename )
     {
         // copy
-        memcpy( g_stereo_buffer, buffer, buffer_size * 2 * sizeof(SAMPLE) );
+        memcpy( g_stereo_buffer, input, numFrames * 2 * sizeof(SAMPLE) );
         // convert stereo to mono
-        for( int i = 0; i < buffer_size; i++)
+        for( int i = 0; i < numFrames; i++)
         {
             g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
             g_audio_buffer[i] /= 2.0f;
@@ -661,13 +726,13 @@ int cb( char * buffer, int buffer_size, void * user_data )
         if( sf_seek(g_sf, 0, SEEK_CUR) < g_sf_info.frames && !g_pause )
         {
             // get the mono/stereo version
-            sf_readf_float( g_sf, g_stereo_buffer, buffer_size );
+            sf_readf_float( g_sf, g_stereo_buffer, numFrames );
 
             // if stereo, convert to mono
             if( g_sf_info.channels == 2 )
             {
                 // convert stereo to mono
-                for( int i = 0; i < buffer_size; i++)
+                for( int i = 0; i < numFrames; i++)
                 {
                     g_audio_buffer[i] = g_stereo_buffer[i*2] + g_stereo_buffer[i*2+1];
                     g_audio_buffer[i] /= 2.0f;
@@ -676,9 +741,9 @@ int cb( char * buffer, int buffer_size, void * user_data )
             else
             {
                 // actually mono
-                memcpy( g_audio_buffer, g_stereo_buffer, buffer_size * sizeof(SAMPLE) );
+                memcpy( g_audio_buffer, g_stereo_buffer, numFrames * sizeof(SAMPLE) );
                 // convert mono to stereo
-                for( int i = 0; i < buffer_size; i++ )
+                for( int i = 0; i < numFrames; i++ )
                 {
                     g_stereo_buffer[i*2] = g_stereo_buffer[i*2+1] = g_audio_buffer[i];
                 }
@@ -688,15 +753,15 @@ int cb( char * buffer, int buffer_size, void * user_data )
             if( g_waveforms != NULL )
             {
                 // put current buffer in time-domain waterfall
-                memcpy( g_waveforms[g_wf_index], g_stereo_buffer, buffer_size * 2 * sizeof(SAMPLE) );
+                memcpy( g_waveforms[g_wf_index], g_stereo_buffer, numFrames * 2 * sizeof(SAMPLE) );
                 // incrment index (this is also the index to copy out of)
                 g_wf_index = (g_wf_index + 1) % g_wf_delay;
                 // copy delayed buffer out of time-domain waterfall
-                memcpy( g_stereo_buffer, g_waveforms[g_wf_index], buffer_size * 2 * sizeof(SAMPLE) );
+                memcpy( g_stereo_buffer, g_waveforms[g_wf_index], numFrames * 2 * sizeof(SAMPLE) );
             }
 
             // play stereo
-            memcpy( buffer, g_stereo_buffer, buffer_size * 2 * sizeof(SAMPLE) );
+            memcpy( output, g_stereo_buffer, numFrames * 2 * sizeof(SAMPLE) );
 
             // count
             g_buffer_count_a++;
@@ -706,17 +771,17 @@ int cb( char * buffer, int buffer_size, void * user_data )
             // done...
             g_running = FALSE;
             // zero
-            memset( g_audio_buffer, 0, buffer_size * sizeof(SAMPLE) );
+            memset( g_audio_buffer, 0, numFrames * sizeof(SAMPLE) );
             // copy remaining delayed waveform buffers one by one
             if( g_wf_delay )
             {
-                memset( g_waveforms[g_wf_index], 0, buffer_size * 2 * sizeof(SAMPLE) );
+                memset( g_waveforms[g_wf_index], 0, numFrames * 2 * sizeof(SAMPLE) );
                 g_wf_index = (g_wf_index + 1) % g_wf_delay; 
-                memcpy( g_stereo_buffer, g_waveforms[g_wf_index], buffer_size * 2 * sizeof(SAMPLE) );
-                memcpy( buffer, g_stereo_buffer, buffer_size * 2 * sizeof(SAMPLE) );
+                memcpy( g_stereo_buffer, g_waveforms[g_wf_index], numFrames * 2 * sizeof(SAMPLE) );
+                memcpy( output, g_stereo_buffer, numFrames * 2 * sizeof(SAMPLE) );
             }
             else
-                memset( buffer, 0, 2 * buffer_size * sizeof(SAMPLE) );
+                memset( output, 0, 2 * numFrames * sizeof(SAMPLE) );
         }
     }
     
@@ -727,7 +792,7 @@ int cb( char * buffer, int buffer_size, void * user_data )
 
     // mute the real-time audio
     if( g_mute )
-        memset( buffer, 0, buffer_size * 2 * sizeof(SAMPLE) );
+        memset( output, 0, numFrames * 2 * sizeof(SAMPLE) );
 
     return 0;
 }
@@ -736,8 +801,8 @@ int cb( char * buffer, int buffer_size, void * user_data )
 
 
 //-----------------------------------------------------------------------------
-// Name: initialize_audio( )
-// Desc: set up audio capture and playback and initializes any application data
+// name: initialize_audio( )
+// desc: set up audio capture and playback and initializes any application data
 //-----------------------------------------------------------------------------
 bool initialize_audio( )
 {
@@ -753,7 +818,7 @@ bool initialize_audio( )
         if( !g_sf )
         {
             // exception
-            fprintf( stderr, "[sndpeek]: error: cannot open '%s'...\n", g_filename );
+            fprintf( stderr, "[sndpeek]: ERROR: cannot open '%s'...\n", g_filename );
             return false;
         }
 
@@ -773,35 +838,72 @@ bool initialize_audio( )
     // make sound
     if( !g_filename || g_sndout )
     {
-        // initialize rtaudio
-        try
+        // instantiate
+        g_audio = new RtAudio();
+        // variables
+        unsigned int bufferBytes = 0;
+        // frame size
+        unsigned int bufferFrames = g_buffer_size;
+
+        // check for audio devices
+        if( g_audio->getDeviceCount() < 1 )
         {
-            // buffer size
-            int bufsize = g_buffer_size;
-            // open the audio device for capture and playback
-            g_audio = new RtAudio( 0, g_sndout, 0, g_sndin, RTAUDIO_FLOAT32,
-                g_srate, &bufsize, 8 );
-            // test
-            if( bufsize != g_buffer_size )
-            {
-                // potential problem
-                fprintf( stderr, "[sndpeek]: warning: using different buffer sizes: %i : %i\n",
-                    bufsize, g_buffer_size );
-            }
-        }
-        catch( StkError & e )
-        {
-            // exception
-            fprintf( stderr, "[sndpeek](via RtAudio): %s\n", e.getMessage() );
-            fprintf( stderr, "[sndpeek]: error: cannot open audio device for capture/playback...\n" );
-            return false;
+            // nopes
+            cerr << "[sndpeek]: ERROR: no audio devices found!" << endl;
+            exit( 1 );
         }
 
-        // set the audio callback
-        g_audio->setStreamCallback( cb, NULL );
-    
-        // start the audio
-        g_audio->startStream( );
+        // let RtAudio print messages to stderr.
+        g_audio->showWarnings( true );
+        
+        // set to default
+        if( g_audioInputDevice < 0 ) g_audioInputDevice = g_audio->getDefaultInputDevice();
+        if( g_audioOutputDevice < 0 ) g_audioOutputDevice = g_audio->getDefaultOutputDevice();
+        
+        // log
+        cerr << "[sndpeek]: opening input device: " << g_audioInputDevice
+             << " output device: " << g_audioOutputDevice << "..." << endl;
+
+        // set input and output parameters
+        RtAudio::StreamParameters iParams, oParams;
+        iParams.deviceId = g_audioInputDevice;
+        iParams.nChannels = NUM_CHANNELS;
+        iParams.firstChannel = 0;
+        oParams.deviceId = g_audioOutputDevice;
+        oParams.nChannels = NUM_CHANNELS;
+        oParams.firstChannel = 0;
+
+        // create stream options
+        RtAudio::StreamOptions options;
+        try
+        {
+            // open a stream
+            g_audio->openStream( &oParams, &iParams, RTAUDIO_FORMAT, g_srate,
+                &bufferFrames, &cb, (void *)&bufferBytes, &options );
+
+            // test
+            if( bufferFrames != g_buffer_size )
+            {
+                // potential problem
+                fprintf( stderr, "[sndpeek]: WARNING: using different buffer sizes: %i : %i\n",
+                    bufferFrames, g_buffer_size );
+            }
+
+            // compute
+            bufferBytes = bufferFrames * NUM_CHANNELS * sizeof(SAMPLE);
+            // test RtAudio functionality for reporting latency.
+            cerr << "[sndpeek]: stream latency: " << g_audio->getStreamLatency() << " frames..." << endl;
+            
+            // start the audio
+            g_audio->startStream();
+        }
+        catch( RtAudioError & e )
+        {
+            // exception
+            fprintf( stderr, "[sndpeek](via RtAudio): %s\n", e.getMessage().c_str() );
+            fprintf( stderr, "[sndpeek]: ERROR: cannot open audio device for capture/playback...\n" );
+            return false;
+        }
     }
 
     // make the transform window
@@ -904,8 +1006,6 @@ void initialize_graphics()
 
     // compute log spacing
     g_log_space = compute_log_spacing( g_fft_size / 2, g_log_factor );
-
-    help();
 }
 
 
