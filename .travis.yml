@@ -1,0 +1,17 @@
+---
+language: cpp
+
+compiler:
+  - clang
+
+before_install:
+  - sudo apt-get install -y libasound2-dev freeglut3-dev libsndfile-dev libxi-dev libxmu-dev libgl1-mesa-dev
+
+matrix:
+  include:
+    - os: linux
+
+script:
+  - cd src/sndpeek
+  - make linux-alsa
+  - ./sndpeek --help
