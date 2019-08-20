@@ -1,5 +1,8 @@
 
-sndpeek: a real-time audio visualization tool (animated, 3D)
+# sndpeek
+a (fork) of a real-time audio visualization tool (animated, 3D)
+
+[![Build Status](https://travis-ci.org/wickedchicken/sndpeek.svg?branch=master)](https://travis-ci.org/wickedchicken/sndpeek)
 
 sndpeek homepage:
     http://www.gewang.com/software/sndpeek/
@@ -18,6 +21,11 @@ authors:
   Ge Wang (gewang@cs.princeton.edu)
   Perry R. Cook (prc@cs.princeton.edu)
   Ananya Misra (amisra@cs.princeton.edu)
+
+additional contributors on this fork:
+  Mike Stipicevic (@wickedchicken)
+  Rob Quist (@RobQuistNL)
+  hoijui (@hoijui)
 
 ---
 
