@@ -1,9 +1,9 @@
 ---
 language: cpp
 
-compiler:
-  - clang
-  - cpp
+branches:
+  only:
+    - add_windows
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y libasound2-dev freeglut3-dev libsndfile-dev libxi-dev libxmu-dev libgl1-mesa-dev; fi
@@ -11,8 +11,6 @@ before_install:
 
 matrix:
   include:
-    - os: osx
-    - os: linux
     - os: windows
 
 script:
