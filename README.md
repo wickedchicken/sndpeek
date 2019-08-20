@@ -18,14 +18,14 @@ supported platforms:
   - Windows/Cygwin (DirectSound)
 
 authors:
-  Ge Wang (gewang@cs.princeton.edu)
-  Perry R. Cook (prc@cs.princeton.edu)
-  Ananya Misra (amisra@cs.princeton.edu)
+  - Ge Wang (gewang@cs.princeton.edu)
+  - Perry R. Cook (prc@cs.princeton.edu)
+  - Ananya Misra (amisra@cs.princeton.edu)
 
-additional contributors on this fork:
-  Mike Stipicevic (@wickedchicken)
-  Rob Quist (@RobQuistNL)
-  hoijui (@hoijui)
+additional contributors to this fork:
+  - Mike Stipicevic ([@wickedchicken](https://github.com/wickedchicken))
+  - Rob Quist ([@RobQuistNL](https://github.com/RobQuistNL))
+  - hoijui ([@hoijui](https://github.com/hoijui))
 
 ---
 
