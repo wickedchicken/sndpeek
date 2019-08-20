@@ -5,13 +5,15 @@ compiler:
   - clang
 
 before_install:
-  - sudo apt-get install -y libasound2-dev freeglut3-dev libsndfile-dev libxi-dev libxmu-dev libgl1-mesa-dev
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y libasound2-dev freeglut3-dev libsndfile-dev libxi-dev libxmu-dev libgl1-mesa-dev; fi
 
 matrix:
   include:
+    - os: osx
     - os: linux
 
 script:
   - cd src/sndpeek
-  - make linux-alsa
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make linux-alsa; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make osx; fi
   - ./sndpeek --help
