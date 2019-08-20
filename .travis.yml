@@ -3,17 +3,21 @@ language: cpp
 
 compiler:
   - clang
+  - cpp
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y libasound2-dev freeglut3-dev libsndfile-dev libxi-dev libxmu-dev libgl1-mesa-dev; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install make; fi
 
 matrix:
   include:
     - os: osx
     - os: linux
+    - os: windows
 
 script:
   - cd src/sndpeek
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then make linux-alsa; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make osx; fi
-  - ./sndpeek --help
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then make win32; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then sndpeek.exe --help; else ./sndpeek --help; fi
