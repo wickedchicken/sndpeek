@@ -1,8 +1,8 @@
-CC=gcc
-CPP=g++
+CC=i686-w64-mingw32-gcc
+CPP=i686-w64-mingw32-g++
 INCLUDES=-I../marsyas/ -I/usr/include/directx/ -I../../vendor/freeglut
 MARSYAS_DIR=../marsyas/
-CFLAGS=-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ -D FREEGLUT_STATIC -D__LITTLE_ENDIAN__ $(INCLUDES) -m32 -O3 -c
+CFLAGS=-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ -D FREEGLUT_STATIC -D__LITTLE_ENDIAN__ $(INCLUDES) -O3 -c
 LIBS=-ldsound -ldxguid -lwinmm -lpthread -lopengl32 -lglu32 -lfreeglut_static -L"../../vendor/freeglut" -lwinmm -lgdi32 -lole32 -Wl,--subsystem,windows
 
 TARGET=sndpeek
