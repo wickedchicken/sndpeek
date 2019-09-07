@@ -160,6 +160,7 @@
 #define HAVE_UNISTD_H 1
 #define OS_IS_MACOSX 0
 #define OS_IS_WIN32 0
+#define WIN32 0
 #define TYPEOF_SF_COUNT_T off_t
 #endif
 
