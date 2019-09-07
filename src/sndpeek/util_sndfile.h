@@ -157,6 +157,7 @@
 #define CPU_IS_LITTLE_ENDIAN 1
 #define HAVE_LRINTF 1
 #define HAVE_LRINT 1
+#define HAVE_UNISTD_H 1
 #define OS_IS_MACOSX 0
 #define OS_IS_WIN32 0
 #define TYPEOF_SF_COUNT_T off_t
