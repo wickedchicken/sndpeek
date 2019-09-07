@@ -3,7 +3,7 @@ CPP=g++
 INCLUDES=-I../marsyas/ -I/usr/include/directx/ -I../../vendor/freeglut
 MARSYAS_DIR=../marsyas/
 CFLAGS=-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ -D_POSIX_C_SOURCE -D FREEGLUT_STATIC -D__LITTLE_ENDIAN__ $(INCLUDES) -O3 -c -static
-LIBS=-lfreeglut_static -L"../../vendor/freeglut" -ldsound -ldxguid -lwinmm -lpthread -lopengl -lglu32 -lwinmm -lgdi32 -lole32 -Wl,--subsystem,windows -static
+LIBS=-lfreeglut_static -L"../../vendor/freeglut" -ldsound -ldxguid -lwinmm -lpthread -lopengl32 -lglu32 -lwinmm -lgdi32 -lole32 -Wl,--subsystem,windows -static
 
 TARGET=sndpeek
 OBJS=chuck_fft.o RtAudio.o Thread.o sndpeek.o Stk.o util_sndfile.o \
