@@ -7536,7 +7536,7 @@ typedef int ssize_t ;
 
 static void psf_log_syserr (SF_PRIVATE *psf, int error) ;
 
-#if ((defined (OS_IS_WIN32) == 0)
+#if (defined (OS_IS_WIN32) == 0)
 
 /*------------------------------------------------------------------------------
 ** Win32 stuff at the bottom of the file. Unix and other sensible OSes here.
