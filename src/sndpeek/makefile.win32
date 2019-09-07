@@ -2,7 +2,7 @@ CC=gcc
 CPP=g++
 INCLUDES=-I../marsyas/ -I/usr/include/directx/ -I../../vendor/freeglut
 MARSYAS_DIR=../marsyas/
-CFLAGS=-D__WINDOWS_DS__ -DAVE_UNISTD_H -D__WINDOWS_PTHREAD__ -D_POSIX_C_SOURCE -D FREEGLUT_STATIC -D__LITTLE_ENDIAN__ $(INCLUDES) -O3 -c -static
+CFLAGS=-D__WINDOWS_DS__ -DHAVE_UNISTD_H -D__WINDOWS_PTHREAD__ -D_POSIX_C_SOURCE -D FREEGLUT_STATIC -D__LITTLE_ENDIAN__ $(INCLUDES) -O3 -c -static
 LIBS=-ldsound -ldxguid -lwinmm -lpthread -lopengl32 -lglu32 -lfreeglut_static -L"../../vendor/freeglut" -lwinmm -lgdi32 -lole32 -Wl,--subsystem,windows
 
 TARGET=sndpeek
